@@ -1,0 +1,19 @@
+syntax: glob
+/Temp
+*.apk
+*.exe
+*.pidb
+*.sln
+*.csproj
+*.unityproj
+*_Data/
+*.userprefs
+*.orig.meta
+*.orig
+*.unitypackage
+*.cache
+*.suo
+*.pdb
+Library
+obj/Debug
+Temp
