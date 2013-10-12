@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Results : MonoBehaviour {
+public class ShowResults : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

@@ -14,6 +14,9 @@ public class Profiler : MonoBehaviour {
 	private static float lastTime;
 	private static bool finished = false;
 	
+	void Start() {
+	}
+	
 	void Update () {
 		if(finished)
 			return;
@@ -29,10 +32,9 @@ public class Profiler : MonoBehaviour {
 		}
 		
 		frameCounter++;
-		float currentTime = Time.realtimeSinceStartup;
-		float elapsedTime = currentTime - lastTime;
+		float elapsedTime = Time.realtimeSinceStartup - lastTime;
 		deltaTimes.Add(elapsedTime);
-		lastTime = currentTime;
+		lastTime = Time.realtimeSinceStartup;
 		
 		//stop measuring after 11 seconds to get an actual measurement period of 10 seconds
 		if(Time.timeSinceLevelLoad > 11) {
