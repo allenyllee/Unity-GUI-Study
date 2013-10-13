@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditorInternal;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,13 +18,16 @@ public class Profiler : MonoBehaviour {
 	void Start() {
 	}
 	
-	void Update () {
-		if(finished)
-			return;
-		
+	void Update () {		
 		// Begin measuring after 1 second (to avoid measuring scene loading overhead)
 		if(Time.timeSinceLevelLoad < 1)
 			return;
+		
+		//stop measuring after 11 seconds to get an actual measurement period of 10 seconds
+		if(Time.timeSinceLevelLoad > 11) {
+			Application.LoadLevel ("ShowResults");
+			return;
+		}
 		
 		if(isFirstFrame) {
 			lastTime = Time.realtimeSinceStartup;
@@ -33,15 +37,9 @@ public class Profiler : MonoBehaviour {
 		
 		frameCounter++;
 		float elapsedTime = Time.realtimeSinceStartup - lastTime;
+		Debug.Log (ProfilerDriver.GetAllStatisticsProperties().ToArray().ToString());
 		deltaTimes.Add(elapsedTime);
 		lastTime = Time.realtimeSinceStartup;
-		
-		//stop measuring after 11 seconds to get an actual measurement period of 10 seconds
-		if(Time.timeSinceLevelLoad > 11) {
-			CalculateData();
-			finished = true;
-			Application.LoadLevel ("ShowResults");
-		}
 	}
 	
 	private static void CalculateData() {
