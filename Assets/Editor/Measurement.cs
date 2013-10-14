@@ -16,13 +16,14 @@ using System.Linq;
  */
 public class Measurement : EditorWindow {
 	
-	private const int SamplesToCollect = 300;
+	private const int SamplesToCollect = 10000;
 	private const int SamplesToDiscard = 100;
 	
 	private Dictionary<string, List<float>> samples;
 	private bool started;
 	private bool finished;
 	private int startFrameIndex;
+	private int lastNrOfSamples;
 	
 	// output variables used when sampling frame times in MeasureStat
 	private float[] sampleBuffer;
@@ -43,6 +44,7 @@ public class Measurement : EditorWindow {
 		sampleBuffer = new float[1];
 		
 		startFrameIndex = ProfilerDriver.lastFrameIndex;
+		lastNrOfSamples = -1;
 		
 		samples = new Dictionary<string, List<float>>();
 		
@@ -52,6 +54,8 @@ public class Measurement : EditorWindow {
 		samples["GarbageCollector"] = new List<float>();
 		samples["VSync"]            = new List<float>();
 		samples["Others"]           = new List<float>();
+		
+		Debug.Log ("Experiment started");
 	}
 	
 	void Update () {
@@ -80,28 +84,34 @@ public class Measurement : EditorWindow {
 		}
 		
 		int nrOfSamples = ProfilerDriver.lastFrameIndex - startFrameIndex;
-		
-		// discard the initial samples to avoid measuring the overhead while loading the scene
-		if(nrOfSamples <= SamplesToDiscard)
-			return;
+		if(nrOfSamples > lastNrOfSamples) {
+			lastNrOfSamples = nrOfSamples;
 			
-		//stop measuring after collecting the required number of samples and discarding the initial ones
-		if(nrOfSamples > SamplesToCollect + SamplesToDiscard) {
-			//Application.LoadLevel("ShowResults");
-			Debug.Log(GetResults());
-			finished = true;
-			started = false;
-			return;
+			//Print progress in log
+			if(nrOfSamples % 200 == 0)
+				Debug.Log("Processed samples: " + nrOfSamples + " / " + (SamplesToCollect + SamplesToDiscard));
+			
+			// discard the initial samples to avoid measuring the overhead while loading the scene
+			if(nrOfSamples <= SamplesToDiscard)
+				return;
+				
+			//stop measuring after collecting the required number of samples and discarding the initial ones
+			if(nrOfSamples > SamplesToCollect + SamplesToDiscard) {
+				//Application.LoadLevel("ShowResults");
+				Debug.Log(GetResults());
+				finished = true;
+				started = false;
+				return;
+			}
+			
+			// Collect frame times in each relevant area
+			MeasureStat("Rendering");
+			MeasureStat("Scripts");
+			MeasureStat("Physics");
+			MeasureStat("GarbageCollector");
+			MeasureStat("VSync");
+			MeasureStat("Others");
 		}
-		
-		// Collect frame times in each relevant area
-		MeasureStat("Rendering");
-		MeasureStat("Scripts");
-		MeasureStat("Physics");
-		MeasureStat("GarbageCollector");
-		MeasureStat("VSync");
-		MeasureStat("Others");
-		
 	}
 	
 	private void MeasureStat(string statLabel) {
