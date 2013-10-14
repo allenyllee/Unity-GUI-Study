@@ -497,6 +497,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 763501283}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b4956fafa838ac4cad2202d4cdb220d, type: 3}
+  m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: 
+  m_AutoRepaintOnSceneChange: 0
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_Title: 
+  m_DepthBufferBits: 0
+  m_AntiAlias: 0
+  m_Pos:
+    x: 0
+    y: 0
+    width: 320
+    height: 240
