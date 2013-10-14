@@ -6,6 +6,4 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/OnGUI.unity
-  - enabled: 1
-    path: Assets/Common/ShowResults.unity
+    path: Assets/GUI Textures.unity
