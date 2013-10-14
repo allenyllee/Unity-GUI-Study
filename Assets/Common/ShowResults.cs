@@ -10,8 +10,8 @@ public class ShowResults : MonoBehaviour {
 	void Start () {
 		Profiler.AddFramesFromFile("profileData.log");
 		string text = "";
-		/*text += getFormattedResults("Rendering");
-		text += getFormattedResults("Scripts");
+		text += getFormattedResults("Rendering");
+		/*text += getFormattedResults("Scripts");
 		text += getFormattedResults("Physics");
 		text += getFormattedResults("VSync");*/
 		guiText.text = text;
@@ -19,7 +19,7 @@ public class ShowResults : MonoBehaviour {
 	
 	private static string getFormattedResults(string statLabel) {
 		float maxValue;
-		int firstFrame = ProfilerDriver.firstFrameIndex;
+		int firstFrame = 1;//ProfilerDriver.firstFrameIndex;
 		float[] results = new float[ProfilerDriver.lastFrameIndex - firstFrame];
 		
 		//fetch requested stats into results array
@@ -27,6 +27,21 @@ public class ShowResults : MonoBehaviour {
 			ProfilerDriver.GetStatisticsIdentifier(statLabel),
 			firstFrame, 1.0f, results, out maxValue
 		);
+		
+		Debug.Log("Samples: "+results.Length);
+		Debug.Log("Average: "+results.Average());
+		
+		firstFrame = ProfilerDriver.firstFrameIndex;
+		results = new float[ProfilerDriver.lastFrameIndex - firstFrame];
+		
+		//fetch requested stats into results array
+		ProfilerDriver.GetStatisticsValues (
+			ProfilerDriver.GetStatisticsIdentifier(statLabel),
+			firstFrame, 1.0f, results, out maxValue
+		);
+		
+		Debug.Log("Samples2: "+results.Length);
+		Debug.Log("Average2: "+results.Average());
 		
 		// calculate and format average and standard deviation
 		string average = formatTime(results.Average());
