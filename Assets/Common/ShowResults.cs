@@ -8,66 +8,51 @@ public class ShowResults : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Profiler.AddFramesFromFile("profileData.log");
 		string text = "";
 		text += getFormattedResults("Rendering");
-		/*text += getFormattedResults("Scripts");
+		text += getFormattedResults("Scripts");
 		text += getFormattedResults("Physics");
-		text += getFormattedResults("VSync");*/
+		text += getFormattedResults("GarbageCollector");
+		text += getFormattedResults("VSync");
+		text += getFormattedResults("Others");
 		guiText.text = text;
 	}
 	
 	private static string getFormattedResults(string statLabel) {
-		float maxValue;
-		int firstFrame = 1;//ProfilerDriver.firstFrameIndex;
-		float[] results = new float[ProfilerDriver.lastFrameIndex - firstFrame];
+		List<float> samples = Measurement.Samples[statLabel];
 		
-		//fetch requested stats into results array
-		ProfilerDriver.GetStatisticsValues (
-			ProfilerDriver.GetStatisticsIdentifier(statLabel),
-			firstFrame, 1.0f, results, out maxValue
-		);
+		// Calculate average value
+		float average = samples.Average();
 		
-		Debug.Log("Samples: "+results.Length);
-		Debug.Log("Average: "+results.Average());
+		// Calculate error bars
+		// These are based on standard deviations calculated separately for values above and below the average.
+		float sumHigher = 0;
+		float sumLower = 0;
+		int countHigher = 0;
+		int countLower = 0;
+		foreach(float sample in samples) {
+			if(sample >= average) {
+				sumHigher += Mathf.Pow(sample - average, 2);
+				countHigher++;
+			}
+			if(sample <= average) {
+				sumLower += Mathf.Pow(sample - average, 2);
+				countLower++;
+			}
+		}
+		float ErrorBarHigher = 0;
+		float ErrorBarLower = 0;
+		if(countHigher > 2)
+			ErrorBarHigher = average + Mathf.Sqrt((sumHigher) / (countHigher-1));
+		if(countLower > 2)
+			ErrorBarLower = average - Mathf.Sqrt((sumLower) / (countLower-1));
 		
-		firstFrame = ProfilerDriver.firstFrameIndex;
-		results = new float[ProfilerDriver.lastFrameIndex - firstFrame];
-		
-		//fetch requested stats into results array
-		ProfilerDriver.GetStatisticsValues (
-			ProfilerDriver.GetStatisticsIdentifier(statLabel),
-			firstFrame, 1.0f, results, out maxValue
-		);
-		
-		Debug.Log("Samples2: "+results.Length);
-		Debug.Log("Average2: "+results.Average());
-		
-		// calculate and format average and standard deviation
-		string average = formatTime(results.Average());
-		string stdDev = formatTime(standardDeviation(results));
-		
-		return statLabel + " time:\t" + average + " ± " + stdDev + " ms\n";
+		return statLabel + " time:\t" + formatTime(average)
+			+ " (" + formatTime(ErrorBarLower) + " .. " + formatTime(ErrorBarHigher) + ")" 
+			+ " ms\n";
 	}
 	
 	private static string formatTime(float nanoSeconds) {
 		return (nanoSeconds / 1000000).ToString("0.0000");
-	}
-	
-	private static float standardDeviation(IEnumerable<float> values)
-	{   
-		float result = 0;
-		if (values.Count() > 0) 
-		{      
-			//Compute the Average      
-			float avg = values.Average();
-			
-			//Perform the Sum of squared (value-avg)
-			float sum = values.Sum(d => Mathf.Pow(d - avg, 2));
-			
-			//Put it all together      
-			result = Mathf.Sqrt((sum) / (values.Count()-1));   
-		}   
-		return result;
 	}
 }
